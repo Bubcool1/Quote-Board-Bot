@@ -67,11 +67,9 @@ client.on('ready', () => {
       if (reaction.emoji.name == tickName[n]) {
         if (quoteNumber == 5) {
           quoteNumber = 0;
+          reaction.message.delete()
           client.channels.cache.get('776871179192893490').send("The quote has been posted."); // Confirmation about the quotes acceptance.
-          client.channels.cache.get(`773483611881603092`).send(args) // Sending the quote to the main quote-board channel.
-          .then(msg => client.destroy())
-          .then(() => client.login(TOKEN));
-          console.log(quoteNumber);
+          client.channels.cache.get('773483611881603092').send(args) // Sending the quote to the main quote-board channel.
         }
         else {
           quoteNumber += 1;
@@ -101,14 +99,11 @@ client.on("messageReactionAdd", (reaction, user, msg) => {
   if (!reaction.message.channel.guild) return;
   for (let n in crossName) {
     if (reaction.emoji.name == crossName[n]) {
-      if (quoteNumber == -1) {
+      if (quoteNumber == -2) {
         quoteNumber = 0;
-        msg.delete(1); // FIXME: After the deleted message issue is fixed change the below '-1' to '-2'
+        reaction.message.delete()
         client.channels.cache.get('776871179192893490').send("The quote has been rejected."); // Confirmation to the main channel about rejection.
         client.channels.cache.get(`776919202652094500`).send(args) // A channel to send the rejects to
-        .then(msg => client.destroy())
-        .then(() => client.login(TOKEN));
-        console.log(quoteNumber);
       }
       else {
         quoteNumber -= 1;
