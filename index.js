@@ -53,6 +53,11 @@ client.on('ready', () => {
       quoteNumber += 1;
       }
     });
+    client.on('message', msg => {
+      if (msg.content === "!remvote") {
+        quoteNumber -= 1;
+        }
+      });
 
   client.on("messageReactionAdd", (reaction, user, msg) => {
     if (!user) return;
@@ -60,11 +65,10 @@ client.on('ready', () => {
     if (!reaction.message.channel.guild) return;
     for (let n in tickName) {
       if (reaction.emoji.name == tickName[n]) {
-        // TODO: Make the vote off thing where 2 to 5 good votes gets it posted -2 to -5 votes gets it yeeted
-        if (quoteNumber == 1) {
+        if (quoteNumber == 5) {
           quoteNumber = 0;
-          client.channels.cache.get('776871179192893490').send("The quote has been posted.");
-          client.channels.cache.get(`773483611881603092`).send(args)
+          client.channels.cache.get('776871179192893490').send("The quote has been posted."); // Confirmation about the quotes acceptance.
+          client.channels.cache.get(`773483611881603092`).send(args) // Sending the quote to the main quote-board channel.
           .then(msg => client.destroy())
           .then(() => client.login(TOKEN));
           console.log(quoteNumber);
@@ -91,41 +95,41 @@ client.on('ready', () => {
   });
 
 
-// TODO: Find the logic for removing votes then YEETING that quote from existence, maybe with a db somewhere of the yeeted ones.
-// client.on("messageReactionAdd", (reaction, user, msg) => {
-//   if (!user) return;
-//   if (user.bot) return;
-//   if (!reaction.message.channel.guild) return;
-//   for (let n in crossName) {
-//     if (reaction.emoji.name == crossName[n]) {
-//       // TODO: Make the vote off thing where 2 to 5 good votes gets it posted -2 to -5 votes gets it yeeted
-//       if (quoteNumber == 1) {
-//         quoteNumber = 0;
-//         client.channels.cache.get('776871179192893490').send("The quote has been posted.");
-//         client.channels.cache.get(`773483611881603092`).send(args)
-//         .then(msg => client.destroy())
-//         .then(() => client.login(TOKEN));
-//         console.log(quoteNumber);
-//       }
-//       else {
-//         quoteNumber += 1;
-//         console.log(quoteNumber)
-//       }
-//     }
-//   }
-// });
+client.on("messageReactionAdd", (reaction, user, msg) => {
+  if (!user) return;
+  if (user.bot) return;
+  if (!reaction.message.channel.guild) return;
+  for (let n in crossName) {
+    if (reaction.emoji.name == crossName[n]) {
+      if (quoteNumber == -1) {
+        quoteNumber = 0;
+        msg.delete(1); // FIXME: After the deleted message issue is fixed change the below '-1' to '-2'
+        client.channels.cache.get('776871179192893490').send("The quote has been rejected."); // Confirmation to the main channel about rejection.
+        client.channels.cache.get(`776919202652094500`).send(args) // A channel to send the rejects to
+        .then(msg => client.destroy())
+        .then(() => client.login(TOKEN));
+        console.log(quoteNumber);
+      }
+      else {
+        quoteNumber -= 1;
+        console.log(quoteNumber)
+      }
+    }
+  }
+});
 
-// client.on("messageReactionRemove", (reaction, user, msg) => {
-//   if (!user) return;
-//   if (user.bot) return;
-//   if (!reaction.message.channel.guild) return;
-//   for (let n in crossName) {
-//     if (reaction.emoji.name == crossName[n]) {
-//       quoteNumber += 1;
-//       console.log("Someone removed their vote " + quoteNumber)
-//     }
-//   }
-// });
+client.on("messageReactionRemove", (reaction, user, msg) => {
+  if (!user) return;
+  if (user.bot) return;
+  if (!reaction.message.channel.guild) return;
+  for (let n in crossName) {
+    if (reaction.emoji.name == crossName[n]) {
+      quoteNumber += 1;
+      console.log("Someone removed their vote " + quoteNumber)
+      
+    }
+  }
+});
 
 
 // TODO: Make it so each reaction adds to a number, if the number reaches +5 then itll add it, if it reaches -5 it wont tick obv +1 'x' -1
