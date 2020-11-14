@@ -45,17 +45,6 @@ client.on('ready', () => {
     }
   });
 
-  client.on('message', msg => {
-    if (msg.content === "!addvote") {
-      quoteNumber += 1;
-      }
-    });
-    client.on('message', msg => {
-      if (msg.content === "!remvote") {
-        quoteNumber -= 1;
-        }
-      });
-
   client.on("messageReactionAdd", (reaction, user, msg) => {
     if (!user) return;
     if (user.bot) return;
