@@ -5,6 +5,10 @@ var tickName = ["✅"];
 var crossName = ["❌"];
 var quoteNumber = 0
 global.fullmessage = ""
+var quoteBoardReq = "676679581847126016"
+var quoteBoard = "776921359624175616"
+var quoteBoardRejects = "776927057861935124"
+
 
 // Added for local testing
 require('dotenv').config()
@@ -16,13 +20,7 @@ client.on('ready', () => {
 client.on('ready', () => {
   console.log('Bot: Hosting ' + `${client.users.size}` + ' users, in ' + `${client.channels.size}` + ' channels of ' + `${client.guilds.size}` + ' guilds.');
       client.user.setStatus('online')
-      client.user.setPresence({
-          game: {
-              name: 'quote-board',
-              type: "Watching",
-              url: "http://obeardsall.media/wat/"
-          }
-      });
+      client.user.setActivity('quote-board', { type: 'Watching' })
   });
 
   client.on('message', msg => {
@@ -34,7 +32,6 @@ client.on('ready', () => {
     }
     else {
       global.fullmessage = "Is this a good quote: " + args;
-      // TODO: make args get added to voteCounts[args] with the number of 0
       quoteNumber = 0;
       msg.delete({ timeout: 1 });
       msg.channel.send(fullmessage)
@@ -68,8 +65,8 @@ client.on('ready', () => {
         if (quoteNumber == 5) {
           quoteNumber = 0;
           reaction.message.delete()
-          client.channels.cache.get('776871179192893490').send("The quote has been posted."); // Confirmation about the quotes acceptance.
-          client.channels.cache.get('773483611881603092').send(args) // Sending the quote to the main quote-board channel.
+          client.channels.cache.get(quoteBoardReq).send("The quote has been posted."); // Confirmation about the quotes acceptance.
+          client.channels.cache.get(quoteBoard).send(args) // Sending the quote to the main quote-board channel.
         }
         else {
           quoteNumber += 1;
@@ -102,8 +99,8 @@ client.on("messageReactionAdd", (reaction, user, msg) => {
       if (quoteNumber == -2) {
         quoteNumber = 0;
         reaction.message.delete()
-        client.channels.cache.get('776871179192893490').send("The quote has been rejected."); // Confirmation to the main channel about rejection.
-        client.channels.cache.get(`776919202652094500`).send(args) // A channel to send the rejects to
+        client.channels.cache.get(quoteBoardReq).send("The quote has been rejected."); // Confirmation to the main channel about rejection.
+        client.channels.cache.get(quoteBoardRejects).send(args) // A channel to send the rejects to
       }
       else {
         quoteNumber -= 1;
@@ -127,7 +124,6 @@ client.on("messageReactionRemove", (reaction, user, msg) => {
 });
 
 
-// TODO: Make it so each reaction adds to a number, if the number reaches +5 then itll add it, if it reaches -5 it wont tick obv +1 'x' -1
 
 // client.login(process.env.token);
 
