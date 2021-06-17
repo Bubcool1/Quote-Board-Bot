@@ -4,7 +4,6 @@ const client = new Discord.Client();
 var tickName = ["✅"];
 var crossName = ["❌"];
 var quoteNumber = 0
-global.fullmessage = ""
 var quoteBoardReq = "676679581847126016"
 var quoteBoard = "776921359624175616"
 var quoteBoardRejects = "776927057861935124"
@@ -31,19 +30,20 @@ client.on('ready', () => {
       msg.channel.send("Please provide a quote and try again.")
     }
     else {
-      global.fullmessage = "Is this a good quote: " + args;
       quoteNumber = 0;
       msg.delete({ timeout: 1 });
-      msg.channel.send(fullmessage)
-      .then(msg => msg.react('❌'));
+      msg.channel.send("Is this a good quote: " + args).then(msg => {
+        msg.react("👍")
+        msg.react("👎")
+      })
     }
   });
 
   client.on('message', msg => {
-  if (msg.content === fullmessage) {
-    msg.react('✅');
-    }
-  });
+  if (msg.content === '!quoteissue') {
+    msg.channel.send("https://github.com/Bubcool1/Quote-Board-Bot/issues");
+  }
+})
 
   client.on("messageReactionAdd", (reaction, user, msg) => {
     if (!user) return;
@@ -99,23 +99,4 @@ client.on("messageReactionAdd", (reaction, user, msg) => {
   }
 });
 
-client.on("messageReactionRemove", (reaction, user, msg) => {
-  if (!user) return;
-  if (user.bot) return;
-  if (!reaction.message.channel.guild) return;
-  for (let n in crossName) {
-    if (reaction.emoji.name == crossName[n]) {
-      quoteNumber += 1;
-      console.log("Someone removed their vote " + quoteNumber)
-      
-    }
-  }
-});
-
-
-
-// client.login(process.env.token);
-
-// Added for local testing
-const TOKEN = process.env.TOKEN;
-client.login(TOKEN);
+client.login(process.env.TOKEN);
