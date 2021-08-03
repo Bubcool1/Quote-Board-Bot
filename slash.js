@@ -1,4 +1,5 @@
-const { Client, Intents, MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
+const { quote } = require('@discordjs/builders');
+const { Client, Intents, MessageActionRow, MessageButton, MessageEmbed, MessageManager } = require('discord.js');
 const { waitForDebugger } = require('inspector');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const wait = require('util').promisify(setTimeout);
@@ -43,6 +44,13 @@ client.on('messageCreate', async message => {
 			console.log(result)
 			message.channel.send("Deploy Complete")
 		});		
+	}
+	if (message.content === '!getThings') {
+		try{
+			message.channel.send(quoteNumber)
+		} catch (e) {
+			message.channel.send('Nothing.')
+		}
 	}
 });
 
@@ -89,7 +97,8 @@ client.on('messageCreate', msg => {
 					element.ID = result.lastMessageId
 					element.desc = embed.description
 					element.username = embed.footer.text
-					element.votes = 0
+					element.upVotes = []
+					element.downVotes = []
 					quoteNumber.push(element);
 				});
 			}
@@ -98,33 +107,108 @@ client.on('messageCreate', msg => {
 })
 
 client.on('interactionCreate', async interaction => {
-    if (!interaction.isButton()) return;
-    if (interaction.customId == 'downvote') {
-		await interaction.reply('Downvote Pressed');
-		await wait(1500);
-		await interaction.deleteReply();
+	if (!interaction.isButton()) return;
+	if (interaction.customId == 'downvote') {
+		userID = interaction.user.id
 		// TODO: get id of the button being pressed. Then the message id then change the value in quoteNumber accordingly. After that check what needs to be done with the quote.
 		for (var i = 0; i < quoteNumber.length; i++) {
 			if (quoteNumber[i].ID == interaction.message.id) {
-				quoteNumber[i].votes -= 1;
-				console.log(quoteNumber[i].votes);
-				console.log(quoteNumber[i].ID);
-			};
-		};
-    };
-    if (interaction.customId == 'upvote') {
-		await interaction.reply('Upvote Pressed');
-		await wait(1500);
-		await interaction.deleteReply();
-		// TODO: get id of the button being pressed. Then the message id then change the value in quoteNumber accordingly. After that check what needs to be done with the quote.
-		for (var i = 0; i < quoteNumber.length; i++) {
-			if (quoteNumber[i].ID == interaction.message.id) {
-				quoteNumber[i].votes += 1;
-				console.log(quoteNumber[i].votes);
-				console.log(quoteNumber[i].ID);
-			};
-		};
-    };
-});
+				if (!quoteNumber[i].downVotes.includes(userID)) {
+					if (quoteNumber[i].upVotes.includes(userID)) {
+						quoteNumber[i].upVotes.pop(userID);
+						quoteNumber[i].downVotes.push(userID);
+						await interaction.reply('You have changed your vote to down');
+						await wait(1500);
+						await interaction.deleteReply();
+					} else {
+						quoteNumber[i].downVotes.push(userID);
+						await interaction.reply('Downvote Pressed');
+						await wait(1500);
+						await interaction.deleteReply();
+					}
+				} else {
+					await interaction.reply('You have already voted negatively.');
+					await wait(1500);
+					await interaction.deleteReply();
+				}
 
+				console.log(quoteNumber[i].downVotes);
+				console.log(quoteNumber[i].ID);
+			};
+			if (quoteNumber[i].upVotes.length == 5) {
+			// if (quoteNumber[i].downVotes.length == 1) {
+				interaction.message.delete(quoteNumber[i].ID);
+				try {
+					const rejectsChannel = interaction.guild.channels.cache.find(channel => channel.name == "quote-board-rejects");
+					const quoteEmbed = new MessageEmbed()
+						.setColor('#0099ff')
+						.setTitle('Quote')
+						.setDescription(quoteNumber[i].desc)
+						.setFooter(quoteNumber[i].username);
+					//   boardChannel.send(quoteNumber[i].desc + ' - ' + quoteNumber[i].username);
+					rejectsChannel.send({
+						embeds: [quoteEmbed]
+					});
+					quoteNumber.pop(i)
+				} catch (e) {
+					console.log("Someone doesn't have rejects.");
+				};
+			
+			};
+		};
+	};
+	if (interaction.customId == 'upvote') {
+		userID = interaction.user.id
+		// TODO: get id of the button being pressed. Then the message id then change the value in quoteNumber accordingly. After that check what needs to be done with the quote.
+		for (var i = 0; i < quoteNumber.length; i++) {
+			if (quoteNumber[i].ID == interaction.message.id) {
+				if (!quoteNumber[i].upVotes.includes(userID)) {
+					if (quoteNumber[i].downVotes.includes(userID)) {
+						quoteNumber[i].downVotes.pop(userID);
+						quoteNumber[i].upVotes.push(userID);
+						await interaction.reply('You have changed your vote to up');
+						await wait(1500);
+						await interaction.deleteReply();
+					} else {
+						quoteNumber[i].upVotes.push(userID);
+						await interaction.reply('Upvote Pressed');
+						await wait(1500);
+						await interaction.deleteReply();
+					}
+				} else {
+					await interaction.reply('You have already voted positively.');
+					await wait(1500);
+					await interaction.deleteReply();
+				}
+
+				console.log(quoteNumber[i].upVotes);
+				console.log(quoteNumber[i].downVotes);
+				console.log(quoteNumber[i].ID);
+			};
+
+			// Sending the quote to the correct channel if necessary. 
+			if (quoteNumber[i].upVotes.length == 5) {
+			// if (quoteNumber[i].upVotes.length == 1) {
+				interaction.message.delete(quoteNumber[i].ID);
+				try {
+					const boardChannel = interaction.guild.channels.cache.find(channel => channel.name == "quote-board");
+					const quoteEmbed = new MessageEmbed()
+						.setColor('#0099ff')
+						.setTitle('Quote')
+						.setDescription(quoteNumber[i].desc)
+						.setFooter(quoteNumber[i].username);
+					//   boardChannel.send(quoteNumber[i].desc + ' - ' + quoteNumber[i].username);
+					boardChannel.send({
+						embeds: [quoteEmbed]
+					});
+					quoteNumber.pop(i)
+				} catch (e) {
+					console.log("Someone doesn't have board.")
+					interaction.message.send('Please create a channel called quote-board.')
+				};
+
+			};
+		};
+	};
+});
 client.login(process.env.TOKEN);
