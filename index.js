@@ -15,9 +15,11 @@ client.on('ready', () => {
 });
 
 client.on('ready', () => {
-  console.log('Bot: Hosting ' + `${client.users.size}` + ' users, in ' + `${client.channels.size}` + ' channels of ' + `${client.guilds.size}` + ' guilds.');
+  console.log('Bot: Hosting ' + `${client.users.cache.size}` + ' users, in ' + `${client.channels.cache.size}` + ' channels of ' + `${client.guilds.cache.size}` + ' guilds/servers.');
   client.user.setStatus('online')
-  client.user.setActivity('quote-board', { type: 'Watching' })
+  client.user.setActivity('quote-board', {
+    type: 'Watching'
+  })
 });
 
   client.on('message', msg => {
