@@ -135,14 +135,14 @@ client.on('interactionCreate', async interaction => {
 				console.log(quoteNumber[i].downVotes);
 				console.log(quoteNumber[i].ID);
 			};
-			if (quoteNumber[i].upVotes.length == 5) {
+			if (quoteNumber[i].downVotes.length == 2) {
 			// if (quoteNumber[i].downVotes.length == 1) {
 				interaction.message.delete(quoteNumber[i].ID);
 				try {
 					const rejectsChannel = interaction.guild.channels.cache.find(channel => channel.name == "quote-board-rejects");
 					const quoteEmbed = new MessageEmbed()
 						.setColor('#0099ff')
-						.setTitle('Quote')
+						.setTitle('Rejected Quote')
 						.setDescription(quoteNumber[i].desc)
 						.setFooter(quoteNumber[i].username);
 					//   boardChannel.send(quoteNumber[i].desc + ' - ' + quoteNumber[i].username);
