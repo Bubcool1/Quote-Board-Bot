@@ -45,13 +45,6 @@ client.on('messageCreate', async message => {
 			message.channel.send("Deploy Complete")
 		});		
 	}
-	if (message.content === '!getThings') {
-		try{
-			message.channel.send(quoteNumber)
-		} catch (e) {
-			message.channel.send('Nothing.')
-		}
-	}
 });
 
 // Slash Command Response Code.
