@@ -40,7 +40,7 @@ client.on('messageCreate', async message => {
 
 		// const commands = client.guilds.cache.get('855023117348765728')?.commands.set(data);
 		// console.log(commands)
-		client.guilds.cache.get('855023117348765728')?.commands.set(data).then(function(result) {
+		client.guilds.cache.get('624200301770965043')?.commands.set(data).then(function(result) {
 			console.log(result)
 			message.channel.send("Deploy Complete")
 		});		
@@ -110,19 +110,13 @@ client.on('interactionCreate', async interaction => {
 					if (quoteNumber[i].upVotes.includes(userID)) {
 						quoteNumber[i].upVotes.pop(userID);
 						quoteNumber[i].downVotes.push(userID);
-						await interaction.reply('You have changed your vote to down');
-						await wait(1500);
-						await interaction.deleteReply();
+						await interaction.reply({content: 'You have changed your vote to down', ephemeral: true});
 					} else {
 						quoteNumber[i].downVotes.push(userID);
-						await interaction.reply('Downvote Pressed');
-						await wait(1500);
-						await interaction.deleteReply();
+						await interaction.reply({content: 'Downvote Pressed', ephemeral: true});
 					}
 				} else {
-					await interaction.reply('You have already voted negatively.');
-					await wait(1500);
-					await interaction.deleteReply();
+					await interaction.reply({content: 'You have already voted negatively.', ephemeral: true });
 				}
 
 				console.log(quoteNumber[i].downVotes);
@@ -159,19 +153,13 @@ client.on('interactionCreate', async interaction => {
 					if (quoteNumber[i].downVotes.includes(userID)) {
 						quoteNumber[i].downVotes.pop(userID);
 						quoteNumber[i].upVotes.push(userID);
-						await interaction.reply('You have changed your vote to up');
-						await wait(1500);
-						await interaction.deleteReply();
+						await interaction.reply({content: 'You have changed your vote to up', ephemeral: true});
 					} else {
 						quoteNumber[i].upVotes.push(userID);
-						await interaction.reply('Upvote Pressed');
-						await wait(1500);
-						await interaction.deleteReply();
+						await interaction.reply({content: 'Upvote Pressed', ephemeral: true});
 					}
 				} else {
-					await interaction.reply('You have already voted positively.');
-					await wait(1500);
-					await interaction.deleteReply();
+					await interaction.reply({content: 'You have already voted positively.', ephemeral: true});
 				}
 
 				console.log(quoteNumber[i].upVotes);
